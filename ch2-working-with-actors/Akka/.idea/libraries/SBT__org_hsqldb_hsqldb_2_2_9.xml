@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="SBT: org.hsqldb:hsqldb:2.2.9">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.hsqldb/hsqldb/jars/hsqldb-2.2.9.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.hsqldb/hsqldb/docs/hsqldb-2.2.9-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.hsqldb/hsqldb/srcs/hsqldb-2.2.9-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
