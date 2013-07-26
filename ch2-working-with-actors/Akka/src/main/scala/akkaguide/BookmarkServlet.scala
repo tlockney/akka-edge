@@ -27,7 +27,7 @@ class BookmarkServlet(system: ActorSystem, bookmarkStore: ActorRef) extends Http
     val uuidFuture = bookmarkStore ? AddBookmark(title, url)
     uuidFuture.mapTo[Option[UUID]].onComplete {
       case Success(uuid) ⇒
-        writer.write("Successfully created bookmark.")
+        writer.write(s"Successfully created bookmark with uuid=$uuid")
       case Failure(error) ⇒
         writer.write("Failure creating bookmark: " + error.getMessage)
     }
@@ -40,7 +40,7 @@ class BookmarkServlet(system: ActorSystem, bookmarkStore: ActorRef) extends Http
 
     val asyncCtx = req.startAsync()
     val writer = asyncCtx.getResponse.getWriter
-    val bookmarkId = UUID.fromString(req.getParameter("id"))
+    val bookmarkId = UUID.fromString(req.getParameter("uuid"))
 
     implicit val timeout = Timeout(5 seconds)
     asyncCtx.setTimeout(5 * 1000)
