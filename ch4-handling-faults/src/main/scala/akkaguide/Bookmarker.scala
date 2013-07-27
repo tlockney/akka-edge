@@ -12,7 +12,7 @@ object Bookmarker extends App {
   val database = Database.connect[Bookmark, UUID]("bookmarkDatabase")
 
   val bookmarkStoreGuardian =
-    system.actorOf(Props(new BookmarkStoreGuardian(database)))
+    system.actorOf(Props(classOf[BookmarkStoreGuardian], database))
 
   val server = new Server(8080)
   val root = new ServletContextHandler(ServletContextHandler.SESSIONS)

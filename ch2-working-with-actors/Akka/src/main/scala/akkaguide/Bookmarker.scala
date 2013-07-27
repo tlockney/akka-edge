@@ -20,7 +20,7 @@ object Bookmarker extends App {
   }
 
   val bookmarkStore =
-    system.actorOf(Props(new BookmarkStore(database)).
+    system.actorOf(Props(classOf[BookmarkStore], database).
       withRouter(RoundRobinRouter(nrOfInstances = 10, supervisorStrategy = databaseSupervisorStrategy)))
 
   val server = new Server(8080)

@@ -3,12 +3,13 @@ package akkaguide
 import java.util.UUID
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import javax.servlet.annotation.WebServlet
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.{Props, Actor, ActorRef, ActorSystem}
 import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
+import javax.servlet.AsyncContext
 
 @WebServlet(asyncSupported = true)
 class BookmarkServlet(system: ActorSystem, bookmarkStore: ActorRef) extends HttpServlet {
@@ -19,18 +20,10 @@ class BookmarkServlet(system: ActorSystem, bookmarkStore: ActorRef) extends Http
                       res: HttpServletResponse) {
     implicit val ec = ExecutionContext.Implicits.global
     val asyncCtx = req.startAsync()
-    val writer = asyncCtx.getResponse.getWriter
     val title = req.getParameter("title")
     val url = req.getParameter("url")
-    implicit val timeout = Timeout(5 seconds)
-    asyncCtx.setTimeout(5 * 1000)
-    val uuidFuture = bookmarkStore ? AddBookmark(title, url)
-    uuidFuture.mapTo[Option[UUID]].onComplete {
-      case Success(uuid) ⇒
-        writer.write("Successfully created bookmark.")
-      case Failure(error) ⇒
-        writer.write("Failure creating bookmark: " + error.getMessage)
-    }
+    val responder = system.actorOf(Props(classOf[PostResponder], asyncCtx))
+    responder ! AddBookmark(title, url)
   }
 
   override def doGet(req: HttpServletRequest,
@@ -41,20 +34,31 @@ class BookmarkServlet(system: ActorSystem, bookmarkStore: ActorRef) extends Http
     val asyncCtx = req.startAsync()
     val writer = asyncCtx.getResponse.getWriter
     val bookmarkId = UUID.fromString(req.getParameter("id"))
-
-    implicit val timeout = Timeout(5 seconds)
-    asyncCtx.setTimeout(5 * 1000)
-    val bookmarkFuture = bookmarkStore ? GetBookmark(bookmarkId)
-
-    bookmarkFuture.mapTo[Option[Bookmark]].onComplete {
-      case Success(bm) ⇒
-        writer.write(bm.getOrElse("Not found").toString)
-      case Failure(error) ⇒
-        writer.write("Could not retrieve bookmark: " + error.getMessage)
-    }
+    val responder = system.actorOf(Props(classOf[GetResponder], asyncCtx))
+    responder ! GetBookmark(bookmarkId)
   }
 
   override def destroy() {
     system.shutdown()
+  }
+
+  class PostResponder(asyncCtx: AsyncContext) extends Actor {
+    val writer = asyncCtx.getResponse.getWriter
+    def receive = {
+      case Some(bookmark) ⇒
+        writer.write(bookmark.toString)
+      case None ⇒
+        writer.write("Could not retrieve bookmark.")
+    }
+  }
+
+  class GetResponder(asyncCtx: AsyncContext) extends Actor {
+    val writer = asyncCtx.getResponse.getWriter
+    def receive = {
+      case Some(uuid) ⇒
+        writer.write("Successfully created bookmark with UUID: " + uuid)
+      case None ⇒
+        writer.write("Could not create bookmark.")
+    }
   }
 }

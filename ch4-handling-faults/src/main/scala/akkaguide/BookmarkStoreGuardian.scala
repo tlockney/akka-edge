@@ -14,7 +14,7 @@ class BookmarkStoreGuardian(database: Database[Bookmark, UUID]) extends Actor {
     }
 
   val bookmarkStore =
-    context.actorOf(Props(new BookmarkStore(database)).
+    context.actorOf(Props(classOf[BookmarkStore], database).
       withRouter(RoundRobinRouter(nrOfInstances = 10)))
 
   def receive = {
