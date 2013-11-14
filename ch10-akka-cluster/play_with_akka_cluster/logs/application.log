@@ -1,0 +1,12 @@
+2013-11-12 13:55:42,714 - [INFO] - from play in pool-4-thread-3 
+Listening for HTTP on /0:0:0:0:0:0:0:0:9000
+
+2013-11-12 13:56:54,824 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2013-11-12 13:56:56,250 - [INFO] - from play in play-akka.actor.default-dispatcher-3 
+Starting application default Akka system.
+
+2013-11-12 14:00:49,346 - [INFO] - from play in pool-4-thread-3 
+Shutdown application default Akka system.
+
