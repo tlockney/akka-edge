@@ -1,0 +1,4 @@
+GET /                       controllers.Application.index
+GET /calculatePi            controllers.Application.calculatePi
+GET /assets/*file           controllers.Assets.at(path="/public", file)
+
