@@ -23,6 +23,7 @@ object MConfig extends MultiNodeConfig {
 class ForwardMNMultiJvmNode1 extends ForwardMultipleNodeDemo
 class ForwardMNMultiJvmNode2 extends ForwardMultipleNodeDemo
 class ForwardMNMultiJvmNode3 extends ForwardMultipleNodeDemo
+case class Stop
 
 class ForwardMultipleNodeDemo extends MultiNodeSpec(MConfig) 
                        with ForwardMultiNodeSpec 
