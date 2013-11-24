@@ -12,15 +12,14 @@ object BookmarkStore {
   case class GetBookmark(uuid: UUID)
 }
 
-class BookmarkStore(database: Database[Bookmark, UUID], crawlerNodes: Seq[String]) extends Actor {
+class BookmarkStore(database: Database[Bookmark, UUID], crawlerNodes: collection.immutable.Seq[String]) extends Actor {
 
   import BookmarkStore.{GetBookmark, AddBookmark}
   import Crawler.{RetrievePage, Page}
 
-  val crawlers = crawlerNodes.map(context.actorFor)
   val crawlerRouter =
-    context.actorOf(Props.empty.withRouter(ScatterGatherFirstCompletedRouter(routees = crawlers,
-      within = 30 seconds)))
+    context.actorOf(Props.empty.withRouter(ScatterGatherFirstCompletedRouter(nrOfInstances = 10, routees = crawlerNodes,
+      within = 30 seconds)), "crawlerRouter")
 
   def receive = {
     case AddBookmark(title, url) ⇒
@@ -28,7 +27,9 @@ class BookmarkStore(database: Database[Bookmark, UUID], crawlerNodes: Seq[String
       database.find(bookmark) match {
         case Some(found) ⇒ sender ! None
         case None ⇒
-          database.create(UUID.randomUUID, bookmark)
+          val uuid = UUID.randomUUID
+          database.create(uuid, bookmark)
+          println(s"Use this URL to get results of bookmark http://localhost:8080?id=$uuid")
           sender ! Some(bookmark)
           import context.dispatcher
           implicit val timeout = Timeout(30 seconds)

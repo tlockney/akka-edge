@@ -6,7 +6,7 @@ import scala.concurrent.duration._
 import java.util.UUID
 import akka.routing.RoundRobinRouter
 
-class BookmarkStoreGuardian(database: Database[Bookmark, UUID], crawlerNodes: Seq[String]) extends Actor {
+class BookmarkStoreGuardian(database: Database[Bookmark, UUID], crawlerNodes: collection.immutable.Seq[String]) extends Actor {
 
   import akkaguide.BookmarkStore.{GetBookmark, AddBookmark}
 
@@ -16,8 +16,7 @@ class BookmarkStoreGuardian(database: Database[Bookmark, UUID], crawlerNodes: Se
     }
 
   val bookmarkStore =
-    context.actorOf(Props(new BookmarkStore(database)).
-      withRouter(RoundRobinRouter(nrOfInstances = 10)))
+    context.actorOf(Props(new BookmarkStore(database, crawlerNodes)).withRouter(RoundRobinRouter(nrOfInstances = 10)), "bookmarkStore")
 
   def receive = {
     case a: AddBookmark ⇒ bookmarkStore forward a

@@ -17,15 +17,18 @@ object Database {
       private var store = TrieMap[ID, DATA]()
 
       def create(id: ID, data: DATA) = {
+        println("db rec created")
         store += (id → data)
         id
       }
 
       def read(id: ID) = {
+        println("db rec read")
         store.get(id)
       }
 
       def update(id: ID, data: DATA) = {
+        println("db rec updated")
         for (item <- store.get(id)) yield {
           store += (id → data)
           data
@@ -33,11 +36,13 @@ object Database {
       }
 
       def delete(id: ID) = {
+        println("db rec deleted")
         store -= id
         !store.contains(id)
       }
 
       def find(data: DATA) = {
+        println("db rec find")
         store.find(_._2 == data)
       }
     }
