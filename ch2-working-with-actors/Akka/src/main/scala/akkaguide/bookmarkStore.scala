@@ -16,8 +16,9 @@ class BookmarkStore(database: Database[Bookmark, UUID]) extends Actor {
       database.find(bookmark) match {
         case Some(found) ⇒ sender ! None
         case None ⇒
-          database.create(UUID.randomUUID, bookmark)
-          sender ! Some(bookmark)
+          val newUUID = UUID.randomUUID
+          database.create(newUUID, bookmark)
+          sender ! Some(newUUID)
       }
     case GetBookmark(uuid) ⇒
       sender ! database.read(uuid)
